@@ -1,0 +1,148 @@
+[
+  {
+    "id": "column.public.Employee.slug",
+    "label": "Add column \"slug\" to \"Employee\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "slug",
+        "table": "Employee"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"slug\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Employee",
+          "slug"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"slug\"",
+        "sql": "ALTER TABLE \"public\".\"Employee\" ADD COLUMN \"slug\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"slug\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Employee",
+          "slug"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "backfill-Employee-slug",
+    "label": "Backfill employee slug",
+    "operationClass": "data",
+    "target": "postgres",
+    "execute": [
+      {
+        "description": "Backfill slug using row_number",
+        "sql": "\n            UPDATE \"Employee\"\n            SET slug = subquery.new_slug\n            FROM (\n              SELECT id,\n                lower(regexp_replace(name, '\\s+', '-', 'g')) || \n                CASE \n                  WHEN ROW_NUMBER() OVER (PARTITION BY lower(regexp_replace(name, '\\s+', '-', 'g')) ORDER BY \"createdAt\") > 1 \n                  THEN '-' || ROW_NUMBER() OVER (PARTITION BY lower(regexp_replace(name, '\\s+', '-', 'g')) ORDER BY \"createdAt\")\n                  ELSE ''\n                END as new_slug\n              FROM \"Employee\"\n            ) AS subquery\n            WHERE \"Employee\".id = subquery.id AND \"Employee\".slug IS NULL\n          "
+      }
+    ],
+    "precheck": [],
+    "postcheck": []
+  },
+  {
+    "id": "alterNullability.setNotNull.Employee.slug",
+    "label": "Set NOT NULL on \"Employee\".\"slug\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "slug",
+        "table": "Employee"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"slug\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Employee",
+          "slug"
+        ]
+      },
+      {
+        "description": "ensure no NULL values in \"slug\"",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"public\".\"Employee\" WHERE \"slug\" IS NULL) AS \"result\"",
+        "params": []
+      }
+    ],
+    "execute": [
+      {
+        "description": "set NOT NULL on \"slug\"",
+        "sql": "ALTER TABLE \"public\".\"Employee\" ALTER COLUMN \"slug\" SET NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"slug\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "Employee",
+          "slug",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Employee.Employee_slug_key",
+    "label": "Add unique constraint on \"Employee\" (slug)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Employee_slug_key",
+        "table": "Employee"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Employee_slug_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Employee_slug_key",
+          "public",
+          "\"public\".\"Employee\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Employee_slug_key\"",
+        "sql": "ALTER TABLE \"public\".\"Employee\" ADD CONSTRAINT \"Employee_slug_key\" UNIQUE (\"slug\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Employee_slug_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Employee_slug_key",
+          "public",
+          "\"public\".\"Employee\""
+        ]
+      }
+    ]
+  }
+]

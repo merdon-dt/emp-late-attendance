@@ -1,0 +1,13 @@
+import { auth } from "@/auth"
+
+export default auth((req) => {
+  // If the user is not authenticated and trying to access a protected route
+  if (!req.auth) {
+    const newUrl = new URL("/api/auth/signin", req.nextUrl.origin)
+    return Response.redirect(newUrl)
+  }
+})
+
+export const config = {
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+}

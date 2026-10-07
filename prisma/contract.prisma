@@ -1,0 +1,52 @@
+// use prisma-8
+enum EmployeeType {
+  @@type("pg/text@1")
+
+  REGULAR = "REGULAR"
+  CLEANER = "CLEANER"
+}
+
+model Employee {
+  id              String               @id @default(uuid())
+  name            String
+  slug            String               @unique
+  type            EmployeeType         @default(REGULAR)
+  isActive        Boolean              @default(true)
+  createdAt       DateTime             @default(now())
+  updatedAt       temporal.updatedAt()
+
+  attendances     Attendance[]
+  cleaningRecords CleaningRecord[]
+}
+
+model Attendance {
+  id         String               @id @default(uuid())
+  employeeId String
+  date       Date
+  checkIn    DateTime?
+  checkOut   DateTime?
+  createdAt  DateTime             @default(now())
+  updatedAt  temporal.updatedAt()
+
+  employee   Employee             @relation(fields: [employeeId], references: [id])
+
+  @@unique([employeeId, date])
+  @@index([employeeId])
+  @@index([date])
+}
+
+model CleaningRecord {
+  id         String               @id @default(uuid())
+  employeeId String
+  date       Date
+  came       Boolean              @default(false)
+  cleaned    Boolean              @default(false)
+  createdAt  DateTime             @default(now())
+  updatedAt  temporal.updatedAt()
+
+  employee   Employee             @relation(fields: [employeeId], references: [id])
+
+  @@unique([employeeId, date])
+  @@index([employeeId])
+  @@index([date])
+}
