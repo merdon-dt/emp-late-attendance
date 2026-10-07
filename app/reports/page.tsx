@@ -21,6 +21,7 @@ export default async function ReportsPage() {
   const serializedCleaning = allCleaning.map((c) => ({
     ...c,
     date: c.date.toString(),
+    onLeave: c.onLeave,
   }));
 
   const serializedEmployees = employees.map(emp => ({

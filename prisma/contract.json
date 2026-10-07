@@ -178,6 +178,13 @@
                   "kind": "scalar"
                 }
               },
+              "onLeave": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
               "updatedAt": {
                 "nullable": false,
                 "type": {
@@ -223,6 +230,9 @@
                 },
                 "id": {
                   "column": "id"
+                },
+                "onLeave": {
+                  "column": "onLeave"
                 },
                 "updatedAt": {
                   "column": "updatedAt"
@@ -495,6 +505,15 @@
                   "nativeType": "text",
                   "nullable": false
                 },
+                "onLeave": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
                 "updatedAt": {
                   "codecId": "pg/timestamptz-temporal@1",
                   "nativeType": "timestamptz",
@@ -644,7 +663,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "90bed4a0a01ee7f1054b1a0ccfc1829c313c61b4b9d973d781d21bbaecc0fee3"
+    "storageHash": "921b21cefc436515a8255f3ab0078fede4c64ea79f624edaa93cf3e4212a9567"
   },
   "execution": {
     "executionHash": "47c6a86caa36d7c85081bafaeed2622033bd189dee20415b087d9add504e9533",

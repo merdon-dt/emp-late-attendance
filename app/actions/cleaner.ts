@@ -14,7 +14,7 @@ export async function getTodayCleaningRecords() {
 
 export async function toggleCleanerState(
   employeeId: string, 
-  field: "came" | "cleaned", 
+  field: "came" | "cleaned" | "onLeave", 
   value: boolean
 ) {
   const date = getTodayStart();
@@ -55,18 +55,21 @@ export async function getCleanerHistory() {
   }).sort((a, b) => b.date.toString().localeCompare(a.date.toString()));
 }
 
-export async function updateCleanerRecord(id: string, came: boolean, cleaned: boolean) {
+export async function updateCleanerRecord(id: string, came: boolean, cleaned: boolean, onLeave: boolean) {
   return db.orm.public.CleaningRecord.where({ id }).update({
     came,
     cleaned,
+    onLeave,
   });
 }
 
-export async function addPastCleanerRecord(employeeId: string, date: string, came: boolean, cleaned: boolean) {
+export async function addPastCleanerRecord(employeeId: string, date: string, came: boolean, cleaned: boolean, onLeave: boolean) {
+  const plainDate = Temporal.PlainDate.from(date);
+
   // Check if record already exists for this date
   const existing = await db.orm.public.CleaningRecord.where({
     employeeId,
-    date,
+    date: plainDate,
   }).all();
 
   if (existing.length > 0) {
@@ -75,8 +78,9 @@ export async function addPastCleanerRecord(employeeId: string, date: string, cam
 
   return db.orm.public.CleaningRecord.create({
     employeeId,
-    date,
+    date: plainDate,
     came,
     cleaned,
+    onLeave,
   });
 }

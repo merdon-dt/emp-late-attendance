@@ -41,6 +41,7 @@ model CleaningRecord {
   date       Date
   came       Boolean              @default(false)
   cleaned    Boolean              @default(false)
+  onLeave    Boolean              @default(false)
   createdAt  DateTime             @default(now())
   updatedAt  temporal.updatedAt()
 

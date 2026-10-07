@@ -26,6 +26,7 @@ export default async function CleanersPage() {
         employeeId: record.employeeId,
         came: record.came,
         cleaned: record.cleaned,
+        onLeave: record.onLeave,
       } : null,
     };
   });

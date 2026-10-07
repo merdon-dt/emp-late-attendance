@@ -93,6 +93,7 @@ export async function getEmployeeReport(employeeId: string) {
       date: c.date.toString(),
       came: c.came,
       cleaned: c.cleaned,
+      onLeave: c.onLeave,
     })),
   };
 }

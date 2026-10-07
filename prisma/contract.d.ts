@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'90bed4a0a01ee7f1054b1a0ccfc1829c313c61b4b9d973d781d21bbaecc0fee3'>;
+  StorageHashBase<'921b21cefc436515a8255f3ab0078fede4c64ea79f624edaa93cf3e4212a9567'>;
 export type ExecutionHash =
   ExecutionHashBase<'47c6a86caa36d7c85081bafaeed2622033bd189dee20415b087d9add504e9533'>;
 export type ProfileHash =
@@ -266,6 +266,7 @@ export type FieldOutputTypes = {
       readonly date: CodecTypes['pg/date-temporal@1']['output'];
       readonly employeeId: CodecTypes['pg/text@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
+      readonly onLeave: CodecTypes['pg/bool@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
     readonly Employee: {
@@ -297,6 +298,7 @@ export type FieldInputTypes = {
       readonly date: CodecTypes['pg/date-temporal@1']['input'];
       readonly employeeId: CodecTypes['pg/text@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
+      readonly onLeave: CodecTypes['pg/bool@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
     readonly Employee: {
@@ -328,6 +330,7 @@ export type StorageColumnTypes = {
       readonly date: CodecTypes['pg/date-temporal@1']['output'];
       readonly employeeId: CodecTypes['pg/text@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
+      readonly onLeave: CodecTypes['pg/bool@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
     readonly Employee: {
@@ -359,6 +362,7 @@ export type StorageColumnInputTypes = {
       readonly date: CodecTypes['pg/date-temporal@1']['input'];
       readonly employeeId: CodecTypes['pg/text@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
+      readonly onLeave: CodecTypes['pg/bool@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
     readonly Employee: {
@@ -392,6 +396,7 @@ export namespace Models {
     date: CodecTypes['pg/date-temporal@1']['output'];
     employeeId: CodecTypes['pg/text@1']['output'];
     id: CodecTypes['pg/text@1']['output'];
+    onLeave: CodecTypes['pg/bool@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     employee: public_Employee;
     readonly [RelationKeys]?: 'employee';
@@ -546,6 +551,15 @@ type ContractBase = Omit<
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
+                };
+                readonly onLeave: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
                 };
                 readonly updatedAt: {
                   readonly nativeType: 'timestamptz';
@@ -767,6 +781,10 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly onLeave: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
               readonly updatedAt: {
                 readonly nullable: false;
                 readonly type: {
@@ -799,6 +817,7 @@ type ContractBase = Omit<
                 readonly date: { readonly column: 'date' };
                 readonly employeeId: { readonly column: 'employeeId' };
                 readonly id: { readonly column: 'id' };
+                readonly onLeave: { readonly column: 'onLeave' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
               };
             };

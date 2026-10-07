@@ -21,6 +21,7 @@ type CleaningRecord = {
   employeeId: string;
   came: boolean;
   cleaned: boolean;
+  onLeave: boolean;
 };
 
 type CleanerWithRecord = Employee & {
@@ -34,6 +35,7 @@ type HistoryRecord = {
   date: string;
   came: boolean;
   cleaned: boolean;
+  onLeave: boolean;
 };
 
 export default function CleanerClient({
@@ -48,7 +50,7 @@ export default function CleanerClient({
   const [historyRecords, setHistoryRecords] = useState(initialHistory);
 
   const [editingHistoryId, setEditingHistoryId] = useState<string | null>(null);
-  const [editState, setEditState] = useState({ came: false, cleaned: false });
+  const [editState, setEditState] = useState({ came: false, cleaned: false, onLeave: false });
 
   const [selectedMonth, setSelectedMonth] = useState(() =>
     new Date().toISOString().slice(0, 7),
@@ -60,12 +62,13 @@ export default function CleanerClient({
     date: "",
     came: true,
     cleaned: true,
+    onLeave: false,
   });
   const [isSavingPast, setIsSavingPast] = useState(false);
 
   const handleSetState = async (
     employeeId: string,
-    field: "came" | "cleaned",
+    field: "came" | "cleaned" | "onLeave",
     newValue: boolean,
   ) => {
     try {
@@ -80,6 +83,7 @@ export default function CleanerClient({
                   employeeId,
                   came: field === "came" ? newValue : false,
                   cleaned: field === "cleaned" ? newValue : false,
+                  onLeave: field === "onLeave" ? newValue : false,
                 };
             return { ...emp, record: newRecord };
           }
@@ -94,16 +98,16 @@ export default function CleanerClient({
 
   const startHistoryEdit = (record: HistoryRecord) => {
     setEditingHistoryId(record.id);
-    setEditState({ came: record.came, cleaned: record.cleaned });
+    setEditState({ came: record.came, cleaned: record.cleaned, onLeave: record.onLeave });
   };
 
   const saveHistoryEdit = async (id: string) => {
     try {
-      await updateCleanerRecord(id, editState.came, editState.cleaned);
+      await updateCleanerRecord(id, editState.came, editState.cleaned, editState.onLeave);
       setHistoryRecords((prev) =>
         prev.map((r) =>
           r.id === id
-            ? { ...r, came: editState.came, cleaned: editState.cleaned }
+            ? { ...r, came: editState.came, cleaned: editState.cleaned, onLeave: editState.onLeave }
             : r,
         ),
       );
@@ -125,6 +129,7 @@ export default function CleanerClient({
         pastForm.date,
         pastForm.came,
         pastForm.cleaned,
+        pastForm.onLeave,
       );
       const empName =
         data.find((e) => e.id === pastForm.employeeId)?.name || "Unknown";
@@ -138,13 +143,14 @@ export default function CleanerClient({
             date: pastForm.date,
             came: pastForm.came,
             cleaned: pastForm.cleaned,
+            onLeave: pastForm.onLeave,
           },
           ...prev,
         ].sort((a, b) => b.date.toString().localeCompare(a.date.toString())),
       );
 
       setIsAddingPast(false);
-      setPastForm({ employeeId: "", date: "", came: true, cleaned: true });
+      setPastForm({ employeeId: "", date: "", came: true, cleaned: true, onLeave: false });
       toast.success("Past record added");
     } catch (err: any) {
       toast.error(err.message || "Failed to add record");
@@ -210,6 +216,7 @@ export default function CleanerClient({
                   <th className="px-6 py-3 font-medium">Cleaner</th>
                   <th className="px-6 py-3 font-medium">Came</th>
                   <th className="px-6 py-3 font-medium">Cleaned</th>
+                  <th className="px-6 py-3 font-medium">On Leave</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -295,6 +302,42 @@ export default function CleanerClient({
                             <span className="flex items-center gap-1.5">
                               {emp.record?.cleaned === false && <X size={14} />}{" "}
                               Skipped
+                            </span>
+                          </button>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="inline-flex bg-gray-100/80 p-1 rounded-lg border border-gray-200/60 shadow-inner">
+                          <button
+                            onClick={() =>
+                              handleSetState(emp.id, "onLeave", true)
+                            }
+                            className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                              emp.record?.onLeave === true
+                                ? "bg-white text-orange-700 shadow-sm border border-gray-200/50"
+                                : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50"
+                            }`}
+                          >
+                            <span className="flex items-center gap-1.5">
+                              {emp.record?.onLeave === true && (
+                                <Check size={14} />
+                              )}{" "}
+                              On Leave
+                            </span>
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleSetState(emp.id, "onLeave", false)
+                            }
+                            className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                              emp.record?.onLeave === false
+                                ? "bg-white text-gray-700 shadow-sm border border-gray-200/50"
+                                : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50"
+                            }`}
+                          >
+                            <span className="flex items-center gap-1.5">
+                              {emp.record?.onLeave === false && <X size={14} />}{" "}
+                              Working
                             </span>
                           </button>
                         </div>
@@ -403,6 +446,22 @@ export default function CleanerClient({
                     Cleaned
                   </label>
                 </div>
+                <div className="flex items-center h-[38px]">
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="rounded border-gray-300 text-orange-600 focus:ring-orange-600"
+                      checked={pastForm.onLeave}
+                      onChange={(e) =>
+                        setPastForm((s) => ({
+                          ...s,
+                          onLeave: e.target.checked,
+                        }))
+                      }
+                    />
+                    Leave
+                  </label>
+                </div>
                 <div>
                   <button
                     onClick={handleAddPast}
@@ -421,7 +480,7 @@ export default function CleanerClient({
               );
               const statsMap = new Map<
                 string,
-                { name: string; came: number; cleaned: number }
+                { name: string; came: number; cleaned: number; leave: number }
               >();
 
               monthRecords.forEach((r) => {
@@ -429,9 +488,11 @@ export default function CleanerClient({
                   name: r.employeeName,
                   came: 0,
                   cleaned: 0,
+                  leave: 0,
                 };
                 if (r.came) stat.came++;
                 if (r.cleaned) stat.cleaned++;
+                if (r.onLeave) stat.leave++;
                 statsMap.set(r.employeeId, stat);
               });
 
@@ -456,6 +517,7 @@ export default function CleanerClient({
                               <th className="px-6 py-3 font-medium">Cleaner</th>
                               <th className="px-6 py-3 font-medium">Days Came</th>
                               <th className="px-6 py-3 font-medium">Days Cleaned</th>
+                              <th className="px-6 py-3 font-medium">Days Leave</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-100">
@@ -470,6 +532,11 @@ export default function CleanerClient({
                                 <td className="px-6 py-3">
                                   <span className="inline-flex items-center gap-1.5 text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md font-medium text-xs ring-1 ring-inset ring-blue-600/20">
                                     <Check size={14} /> {stat.cleaned}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-3">
+                                  <span className="inline-flex items-center gap-1.5 text-orange-700 bg-orange-50 px-2.5 py-1 rounded-md font-medium text-xs ring-1 ring-inset ring-orange-600/20">
+                                    <Check size={14} /> {stat.leave}
                                   </span>
                                 </td>
                               </tr>
@@ -487,6 +554,7 @@ export default function CleanerClient({
                           <th className="px-6 py-3 font-medium">Cleaner</th>
                           <th className="px-6 py-3 font-medium">Came</th>
                           <th className="px-6 py-3 font-medium">Cleaned</th>
+                          <th className="px-6 py-3 font-medium">Leave</th>
                           <th className="px-6 py-3 font-medium text-right">
                             Actions
                           </th>
@@ -557,6 +625,22 @@ export default function CleanerClient({
                                       Cleaned
                                     </label>
                                   </td>
+                                  <td className="px-6 py-4">
+                                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        className="rounded border-gray-300 text-orange-600 focus:ring-orange-600 cursor-pointer"
+                                        checked={editState.onLeave}
+                                        onChange={(e) =>
+                                          setEditState((s) => ({
+                                            ...s,
+                                            onLeave: e.target.checked,
+                                          }))
+                                        }
+                                      />
+                                      Leave
+                                    </label>
+                                  </td>
                                   <td className="px-6 py-4 text-right">
                                     <button
                                       onClick={() => saveHistoryEdit(record.id)}
@@ -588,6 +672,17 @@ export default function CleanerClient({
                                       }`}
                                     >
                                       {record.cleaned ? "Yes" : "No"}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    <span
+                                      className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
+                                        record.onLeave
+                                          ? "bg-orange-50 text-orange-700 ring-orange-600/20"
+                                          : "bg-gray-50 text-gray-600 ring-gray-500/10"
+                                      }`}
+                                    >
+                                      {record.onLeave ? "Yes" : "No"}
                                     </span>
                                   </td>
                                   <td className="px-6 py-4 text-right">
