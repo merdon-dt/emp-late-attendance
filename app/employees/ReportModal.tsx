@@ -13,7 +13,6 @@ import {
   Clock,
   Edit2,
   Check,
-  Plus,
   AlertCircle,
   Save,
   CalendarPlus,
@@ -21,6 +20,21 @@ import {
   XCircle,
   Sparkles,
 } from "lucide-react";
+
+type AttendanceItem = {
+  id: string;
+  date: string;
+  checkIn: string | null;
+  checkOut: string | null;
+};
+
+type CleaningItem = {
+  id: string;
+  date: string;
+  came: boolean;
+  cleaned: boolean;
+  onLeave: boolean;
+};
 
 type ReportModalProps = {
   isOpen: boolean;
@@ -34,8 +48,8 @@ export default function ReportModal({
   employee,
 }: ReportModalProps) {
   const [reportData, setReportData] = useState<{
-    attendance: any[];
-    cleaning: any[];
+    attendance: AttendanceItem[];
+    cleaning: CleaningItem[];
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [editingRecordId, setEditingRecordId] = useState<string | null>(null);
@@ -57,15 +71,15 @@ export default function ReportModal({
       setReportData(data);
       setIsAdding(false);
       setAddDate("");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      alert(err.message || "Failed to add past attendance");
+      alert(err instanceof Error ? err.message : "Failed to add past attendance");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleSaveTime = async (record: any) => {
+  const handleSaveTime = async (record: AttendanceItem) => {
     setIsSaving(true);
     try {
       const dateStr = record.date.toString();
@@ -101,7 +115,7 @@ export default function ReportModal({
     }
   };
 
-  const startEdit = (record: any) => {
+  const startEdit = (record: AttendanceItem) => {
     setEditingRecordId(record.id);
     if (record.checkIn) {
       setEditCheckIn(
@@ -128,22 +142,31 @@ export default function ReportModal({
   };
 
   useEffect(() => {
+    let ignore = false;
     if (isOpen && employee) {
-      setLoading(true);
+      queueMicrotask(() => setLoading(true));
       getEmployeeReport(employee.id)
         .then((data) => {
-          console.log({ data });
-
-          setReportData(data);
-          setLoading(false);
+          if (!ignore) {
+            setReportData(data);
+            setLoading(false);
+          }
         })
         .catch((err) => {
-          console.error(err);
-          setLoading(false);
+          if (!ignore) {
+            console.error(err);
+            setLoading(false);
+          }
         });
     } else {
-      setReportData(null);
+      queueMicrotask(() => {
+        setReportData(null);
+        setLoading(false);
+      });
     }
+    return () => {
+      ignore = true;
+    };
   }, [isOpen, employee]);
 
   const { totalLateMinutes, lateAttendanceRecords } = useMemo(() => {

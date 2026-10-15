@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { Temporal } from "temporal-polyfill";
 import { Download } from "lucide-react";
+import React from "react";
 
 type Employee = {
   id: string;
@@ -79,6 +80,7 @@ export default function ReportsClient({
   const activeCleaners = employees.filter(
     (e) => e.isActive && e.type === "CLEANER",
   );
+  console.log({ activeEmployees, attendance });
 
   return (
     <div className="p-4 sm:p-8 space-y-6 max-w-full overflow-hidden">
@@ -148,10 +150,16 @@ export default function ReportsClient({
                     {day}
                   </th>
                 ))}
+
                 {activeTab === "EMPLOYEE" ? (
-                  <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-l border-gray-200 z-10 text-orange-700">
-                    Total Late Mins
-                  </th>
+                  <>
+                    <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-l border-gray-200 z-10 text-amber-700 min-w-[70px]">
+                      Late Days
+                    </th>
+                    <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-l border-gray-200 z-10 text-orange-700 min-w-[80px]">
+                      Total Late Mins
+                    </th>
+                  </>
                 ) : (
                   <>
                     <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-l border-gray-200 z-10 text-green-700">
@@ -169,7 +177,7 @@ export default function ReportsClient({
                 activeEmployees.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={daysInMonth + 4}
+                      colSpan={daysInMonth + 3}
                       className="p-8 text-center text-gray-500"
                     >
                       No employees found.
@@ -178,6 +186,7 @@ export default function ReportsClient({
                 ) : (
                   activeEmployees.map((emp) => {
                     let totalLateMins = 0;
+                    let lateDaysCount = 0;
 
                     return (
                       <tr
@@ -197,7 +206,7 @@ export default function ReportsClient({
                           let display = "-";
                           let cellClass = "text-gray-300";
 
-                          if (record) {
+                          if (record?.checkIn) {
                             try {
                               const zdtIn = Temporal.Instant.from(
                                 record.checkIn,
@@ -213,11 +222,14 @@ export default function ReportsClient({
                                 cellClass =
                                   "bg-orange-50 text-orange-700 font-bold";
                                 totalLateMins += lateMins;
+                                lateDaysCount += 1;
                               } else {
                                 display = "✓";
                                 cellClass = "text-green-500 font-bold";
                               }
-                            } catch (e) {}
+                            } catch {
+                              // ignore invalid date strings
+                            }
                           }
 
                           return (
@@ -229,6 +241,9 @@ export default function ReportsClient({
                             </td>
                           );
                         })}
+                        <td className="px-3 py-2 text-center font-bold text-amber-700 bg-amber-50/30 border-l border-gray-200">
+                          {lateDaysCount}
+                        </td>
                         <td className="px-3 py-2 text-center font-bold text-orange-700 bg-orange-50/30 border-l border-gray-200">
                           {totalLateMins}m
                         </td>

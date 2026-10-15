@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, CalendarCheck, Sparkles, Menu, X, Settings, FileSpreadsheet, LogIn, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, CalendarCheck, Sparkles, Menu, Settings, FileSpreadsheet, LogIn, LogOut } from "lucide-react";
 import { useState } from "react";
 import { signIn, signOut } from "next-auth/react";
 
@@ -93,7 +94,7 @@ export default function Sidebar({
               <div className="mt-4 flex items-center justify-between px-3">
                 <div className="flex items-center gap-3">
                   {user.image ? (
-                    <img src={user.image} alt={user.name || "User"} className="h-9 w-9 rounded-full bg-gray-100" />
+                    <Image src={user.image} alt={user.name || "User"} width={36} height={36} unoptimized className="h-9 w-9 rounded-full bg-gray-100" />
                   ) : (
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
                       {user.name?.[0] || "U"}

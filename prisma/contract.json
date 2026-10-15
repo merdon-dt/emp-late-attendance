@@ -251,6 +251,13 @@
                   "kind": "scalar"
                 }
               },
+              "empId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "id": {
                 "nullable": false,
                 "type": {
@@ -336,6 +343,9 @@
               "fields": {
                 "createdAt": {
                   "column": "createdAt"
+                },
+                "empId": {
+                  "column": "empId"
                 },
                 "id": {
                   "column": "id"
@@ -588,6 +598,11 @@
                   "nativeType": "timestamptz",
                   "nullable": false
                 },
+                "empId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "id": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
@@ -645,6 +660,11 @@
                   "columns": [
                     "slug"
                   ]
+                },
+                {
+                  "columns": [
+                    "empId"
+                  ]
                 }
               ]
             }
@@ -663,7 +683,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "921b21cefc436515a8255f3ab0078fede4c64ea79f624edaa93cf3e4212a9567"
+    "storageHash": "fc16fff67200302cb1f99344fb91aac23518f4ff784080e9e8ce9108661352bc"
   },
   "execution": {
     "executionHash": "47c6a86caa36d7c85081bafaeed2622033bd189dee20415b087d9add504e9533",

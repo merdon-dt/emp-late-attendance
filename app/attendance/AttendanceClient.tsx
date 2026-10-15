@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Temporal } from "temporal-polyfill";
 import { checkIn, checkOut } from "@/app/actions/attendance";
 import { toast } from "sonner";
-import { Calendar as CalendarIcon, Clock, CheckCircle2, XCircle, Search, Filter } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, CheckCircle2, Search, Filter } from "lucide-react";
 
 type Employee = {
   id: string;
@@ -92,7 +92,7 @@ export default function AttendanceClient({
         return emp;
       }));
       toast.success("Successfully checked in");
-    } catch (err) {
+    } catch {
       toast.error("Failed to check in");
     }
   };
@@ -113,7 +113,7 @@ export default function AttendanceClient({
         return emp;
       }));
       toast.success("Successfully checked out");
-    } catch (err) {
+    } catch {
       toast.error("Failed to check out");
     }
   };
@@ -163,7 +163,7 @@ export default function AttendanceClient({
                 : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
             }`}
           >
-            Today's Late Tracker
+            Today&apos;s Late Tracker
           </button>
           <button
             onClick={() => setActiveTab("HISTORY")}
@@ -302,7 +302,7 @@ export default function AttendanceClient({
                 ) : initialHistory.map(record => {
                   
                   let status = { label: "On Time", color: "bg-blue-50 text-blue-700 ring-blue-600/20" };
-                  let lateDuration = getLateDuration(record.checkIn);
+                  const lateDuration = getLateDuration(record.checkIn);
                   
                   if (lateDuration) {
                     status = { label: "Late", color: "bg-amber-50 text-amber-700 ring-amber-600/20" };

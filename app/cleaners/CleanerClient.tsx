@@ -91,7 +91,7 @@ export default function CleanerClient({
         }),
       );
       toast.success(`Updated ${field} status`);
-    } catch (err) {
+    } catch {
       toast.error("Failed to update status");
     }
   };
@@ -113,7 +113,7 @@ export default function CleanerClient({
       );
       setEditingHistoryId(null);
       toast.success("History record updated");
-    } catch (err) {
+    } catch {
       toast.error("Failed to update history record");
     }
   };
@@ -152,8 +152,8 @@ export default function CleanerClient({
       setIsAddingPast(false);
       setPastForm({ employeeId: "", date: "", came: true, cleaned: true, onLeave: false });
       toast.success("Past record added");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to add record");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to add record");
     } finally {
       setIsSavingPast(false);
     }
@@ -182,7 +182,7 @@ export default function CleanerClient({
                 : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
             }`}
           >
-            Today's Status
+            Today&apos;s Status
           </button>
           <button
             onClick={() => setActiveTab("HISTORY")}

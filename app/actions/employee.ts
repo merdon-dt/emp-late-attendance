@@ -7,10 +7,13 @@ export async function getEmployees() {
 }
 
 export async function createEmployee(data: {
+  empId: string;
   name: string;
   type: "REGULAR" | "CLEANER";
 }) {
   const name = data.name.trim();
+  const empId = data.empId.trim();
+
   let baseSlug = name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
@@ -27,38 +30,51 @@ export async function createEmployee(data: {
   }
 
   const emp = await db.orm.public.Employee.create({
+    empId,
     name,
     slug,
     type: data.type,
   });
 
+  if (!emp) {
+    throw new Error("Failed to create employee");
+  }
+
   return {
-    id: emp?.id,
-    name: emp?.name,
-    slug: emp?.slug,
-    type: emp?.type,
-    isActive: emp?.isActive,
+    id: emp.id,
+    empId: emp.empId ?? null,
+    name: emp.name,
+    slug: emp.slug,
+    type: emp.type,
+    isActive: emp.isActive,
   };
 }
 
 export async function updateEmployee(
   id: string,
   data: {
+    empId: string;
     name: string;
     type: "REGULAR" | "CLEANER";
   },
 ) {
   const emp = await db.orm.public.Employee.where({ id }).update({
+    empId: data.empId.trim(),
     name: data.name.trim(),
     type: data.type,
   });
 
+  if (!emp) {
+    throw new Error("Employee not found or update failed");
+  }
+
   return {
-    id: emp?.id,
-    name: emp?.name,
-    slug: emp?.slug,
-    type: emp?.type,
-    isActive: emp?.isActive,
+    id: emp.id,
+    empId: emp.empId ?? null,
+    name: emp.name,
+    slug: emp.slug,
+    type: emp.type,
+    isActive: emp.isActive,
   };
 }
 
@@ -67,12 +83,17 @@ export async function setEmployeeStatus(id: string, isActive: boolean) {
     isActive,
   });
 
+  if (!emp) {
+    throw new Error("Employee not found or status update failed");
+  }
+
   return {
-    id: emp?.id,
-    name: emp?.name,
-    slug: emp?.slug,
-    type: emp?.type,
-    isActive: emp?.isActive,
+    id: emp.id,
+    empId: emp.empId ?? null,
+    name: emp.name,
+    slug: emp.slug,
+    type: emp.type,
+    isActive: emp.isActive,
   };
 }
 

@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'921b21cefc436515a8255f3ab0078fede4c64ea79f624edaa93cf3e4212a9567'>;
+  StorageHashBase<'fc16fff67200302cb1f99344fb91aac23518f4ff784080e9e8ce9108661352bc'>;
 export type ExecutionHash =
   ExecutionHashBase<'47c6a86caa36d7c85081bafaeed2622033bd189dee20415b087d9add504e9533'>;
 export type ProfileHash =
@@ -271,6 +271,7 @@ export type FieldOutputTypes = {
     };
     readonly Employee: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly empId: CodecTypes['pg/text@1']['output'] | null;
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly isActive: CodecTypes['pg/bool@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'];
@@ -303,6 +304,7 @@ export type FieldInputTypes = {
     };
     readonly Employee: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly empId: CodecTypes['pg/text@1']['input'] | null;
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly isActive: CodecTypes['pg/bool@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'];
@@ -335,6 +337,7 @@ export type StorageColumnTypes = {
     };
     readonly Employee: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly empId: CodecTypes['pg/text@1']['output'] | null;
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly isActive: CodecTypes['pg/bool@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'];
@@ -367,6 +370,7 @@ export type StorageColumnInputTypes = {
     };
     readonly Employee: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly empId: CodecTypes['pg/text@1']['input'] | null;
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly isActive: CodecTypes['pg/bool@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'];
@@ -403,6 +407,7 @@ export namespace Models {
   };
   export type public_Employee = {
     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    empId: CodecTypes['pg/text@1']['output'] | null;
     id: CodecTypes['pg/text@1']['output'];
     isActive: CodecTypes['pg/bool@1']['output'];
     name: CodecTypes['pg/text@1']['output'];
@@ -606,6 +611,11 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
                 };
+                readonly empId: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
                 readonly id: {
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
@@ -646,7 +656,10 @@ type ContractBase = Omit<
                 };
               };
               primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [{ readonly columns: readonly ['slug'] }];
+              uniques: readonly [
+                { readonly columns: readonly ['slug'] },
+                { readonly columns: readonly ['empId'] },
+              ];
               indexes: readonly [];
               foreignKeys: readonly [];
             };
@@ -831,6 +844,10 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-temporal@1';
                 };
               };
+              readonly empId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly id: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -888,6 +905,7 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly createdAt: { readonly column: 'createdAt' };
+                readonly empId: { readonly column: 'empId' };
                 readonly id: { readonly column: 'id' };
                 readonly isActive: { readonly column: 'isActive' };
                 readonly name: { readonly column: 'name' };

@@ -8,14 +8,34 @@ import { UserPlus, UserCog, X } from "lucide-react";
 
 type EmployeeType = "REGULAR" | "CLEANER";
 
+export type SavedEmployee = {
+  id: string;
+  empId?: string | null;
+  name: string;
+  slug: string;
+  type: EmployeeType;
+  isActive: boolean;
+};
+
 type EmployeeModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (emp: any) => void;
-  initialData?: { id: string; name: string; type: EmployeeType } | null;
+  onSuccess: (emp: SavedEmployee) => void;
+  initialData?: {
+    id: string;
+    empId?: string | null;
+    name: string;
+    type: EmployeeType;
+  } | null;
 };
 
-export default function EmployeeModal({ isOpen, onClose, onSuccess, initialData }: EmployeeModalProps) {
+export default function EmployeeModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  initialData,
+}: EmployeeModalProps) {
+  const [empId, setEmpId] = useState("");
   const [name, setName] = useState("");
   const [type, setType] = useState<EmployeeType>("REGULAR");
   const [loading, setLoading] = useState(false);
@@ -23,11 +43,17 @@ export default function EmployeeModal({ isOpen, onClose, onSuccess, initialData 
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
-        setName(initialData.name);
-        setType(initialData.type);
+        queueMicrotask(() => {
+          setEmpId(initialData.empId || "");
+          setName(initialData.name);
+          setType(initialData.type);
+        });
       } else {
-        setName("");
-        setType("REGULAR");
+        queueMicrotask(() => {
+          setEmpId("");
+          setName("");
+          setType("REGULAR");
+        });
       }
     }
   }, [isOpen, initialData]);
@@ -44,21 +70,25 @@ export default function EmployeeModal({ isOpen, onClose, onSuccess, initialData 
 
     try {
       setLoading(true);
-      
+
       let savedEmp;
       if (initialData?.id) {
         savedEmp = await updateEmployee(initialData.id, {
+          empId: empId.trim(),
           name: name.trim(),
           type,
         });
       } else {
         savedEmp = await createEmployee({
+          empId: empId.trim(),
           name: name.trim(),
           type,
         });
       }
 
-      toast.success(`Employee successfully ${initialData ? "updated" : "created"}!`);
+      toast.success(
+        `Employee successfully ${initialData ? "updated" : "created"}!`,
+      );
       onSuccess(savedEmp);
       onClose();
     } catch (error) {
@@ -81,15 +111,32 @@ export default function EmployeeModal({ isOpen, onClose, onSuccess, initialData 
               <h2 className="text-lg font-semibold text-gray-900">
                 {initialData ? "Edit Employee" : "Add Employee"}
               </h2>
-              <p className="text-xs text-gray-500">{initialData ? "Update employee details." : "Add a new employee to the system."}</p>
+              <p className="text-xs text-gray-500">
+                {initialData
+                  ? "Update employee details."
+                  : "Add a new employee to the system."}
+              </p>
             </div>
           </div>
-          <button onClick={onClose} className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+          <button
+            onClick={onClose}
+            className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+          >
             <X size={20} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          <div>
+            <label className="mb-1 block text-sm font-medium">Emp ID</label>
+            <input
+              value={empId}
+              onChange={(e) => setEmpId(e.target.value)}
+              placeholder="Enter employee ID"
+              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+              autoFocus
+            />
+          </div>
           <div>
             <label className="mb-1 block text-sm font-medium">Name</label>
             <input
@@ -97,7 +144,6 @@ export default function EmployeeModal({ isOpen, onClose, onSuccess, initialData 
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter employee name"
               className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-              autoFocus
             />
           </div>
 

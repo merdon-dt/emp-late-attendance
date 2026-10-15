@@ -2,7 +2,7 @@ import { getEmployees } from "@/app/actions/employee";
 import { getTodayAttendance } from "@/app/actions/attendance";
 import { getTodayCleaningRecords } from "@/app/actions/cleaner";
 import { Temporal } from "temporal-polyfill";
-import { Users, UserCheck, Clock, UserX, UserMinus, ShieldCheck, SprayCan, AlertCircle } from "lucide-react";
+import { Users, UserCheck, Clock, ShieldCheck, SprayCan, AlertCircle } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -49,8 +49,6 @@ export default async function DashboardPage() {
   const onTimeToday = activeRegular.length - lateToday;
 
   const activeCleaners = activeEmployees.filter(e => e.type === "CLEANER").length;
-  const cleanersCame = cleaningRecords.filter(r => r.came && activeEmployees.some(e => e.id === r.employeeId && e.type === "CLEANER")).length;
-  const cleanersCompleted = cleaningRecords.filter(r => r.cleaned && activeEmployees.some(e => e.id === r.employeeId && e.type === "CLEANER")).length;
 
   return (
     <div className="p-4 sm:p-8 space-y-8 max-w-7xl mx-auto">
@@ -61,7 +59,7 @@ export default async function DashboardPage() {
             Late Attendance Dashboard
           </h1>
           <p className="mt-1 text-sm sm:text-base text-gray-500">
-            Today's snapshot for {new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(new Date())}
+            Today&apos;s snapshot for {new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(new Date())}
           </p>
         </div>
       </div>

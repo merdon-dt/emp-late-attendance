@@ -17,6 +17,7 @@ model Employee {
 
   attendances     Attendance[]
   cleaningRecords CleaningRecord[]
+  empId           String?              @unique
 }
 
 model Attendance {

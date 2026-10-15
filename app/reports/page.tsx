@@ -13,14 +13,19 @@ export default async function ReportsPage() {
 
   // Pass strings to client for dates
   const serializedAttendance = allAttendance.map((a) => ({
-    ...a,
-    checkIn: a.checkIn.toString(),
-    checkOut: a.checkOut?.toString() || null,
+    id: a.id,
+    employeeId: a.employeeId,
+    date: a.date.toString(),
+    checkIn: a.checkIn ? a.checkIn.toString() : "",
+    checkOut: a.checkOut ? a.checkOut.toString() : null,
   }));
 
   const serializedCleaning = allCleaning.map((c) => ({
-    ...c,
+    id: c.id,
+    employeeId: c.employeeId,
     date: c.date.toString(),
+    came: c.came,
+    cleaned: c.cleaned,
     onLeave: c.onLeave,
   }));
 
@@ -33,7 +38,7 @@ export default async function ReportsPage() {
 
   return (
     <ReportsClient
-      employees={serializedEmployees as any}
+      employees={serializedEmployees}
       attendance={serializedAttendance}
       cleaning={serializedCleaning}
     />
