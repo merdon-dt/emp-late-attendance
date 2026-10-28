@@ -27,6 +27,9 @@ export default async function CleanersPage() {
         came: record.came,
         cleaned: record.cleaned,
         onLeave: record.onLeave,
+        officeLeave: record.officeLeave ?? false,
+        grannyLeave: record.grannyLeave ?? false,
+        comment: record.comment ?? null,
       } : null,
     };
   });

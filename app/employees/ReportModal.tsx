@@ -19,7 +19,11 @@ import {
   CheckCircle2,
   XCircle,
   Sparkles,
+  Building2,
+  UserMinus,
+  MessageSquare,
 } from "lucide-react";
+import { ATTENDANCE_LATE_TIME } from "@/lib/date";
 
 type AttendanceItem = {
   id: string;
@@ -34,6 +38,9 @@ type CleaningItem = {
   came: boolean;
   cleaned: boolean;
   onLeave: boolean;
+  officeLeave?: boolean;
+  grannyLeave?: boolean;
+  comment?: string | null;
 };
 
 type ReportModalProps = {
@@ -52,6 +59,7 @@ export default function ReportModal({
     cleaning: CleaningItem[];
   } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [filter, setFilter] = useState<"ALL" | "LATE">("ALL");
   const [editingRecordId, setEditingRecordId] = useState<string | null>(null);
   const [editCheckIn, setEditCheckIn] = useState<string>("");
   const [editCheckOut, setEditCheckOut] = useState<string>("");
@@ -59,7 +67,7 @@ export default function ReportModal({
 
   const [isAdding, setIsAdding] = useState(false);
   const [addDate, setAddDate] = useState("");
-  const [addCheckIn, setAddCheckIn] = useState("09:50");
+  const [addCheckIn, setAddCheckIn] = useState(ATTENDANCE_LATE_TIME);
   const [addCheckOut, setAddCheckOut] = useState("18:50");
 
   const handleAddPast = async () => {
@@ -73,7 +81,9 @@ export default function ReportModal({
       setAddDate("");
     } catch (err: unknown) {
       console.error(err);
-      alert(err instanceof Error ? err.message : "Failed to add past attendance");
+      alert(
+        err instanceof Error ? err.message : "Failed to add past attendance",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -170,7 +180,8 @@ export default function ReportModal({
   }, [isOpen, employee]);
 
   const { totalLateMinutes, lateAttendanceRecords } = useMemo(() => {
-    if (!reportData?.attendance) return { totalLateMinutes: 0, lateAttendanceRecords: [] };
+    if (!reportData?.attendance)
+      return { totalLateMinutes: 0, lateAttendanceRecords: [] };
 
     let totalMins = 0;
     const lateRecords: typeof reportData.attendance = [];
@@ -181,14 +192,12 @@ export default function ReportModal({
         const zdtIn = Temporal.Instant.from(record.checkIn).toZonedDateTimeISO(
           "Asia/Kolkata",
         );
-        const cutoffIn = zdtIn.withPlainTime("09:50");
+        const cutoffIn = zdtIn.withPlainTime(ATTENDANCE_LATE_TIME);
         const diffInMs = zdtIn.epochMilliseconds - cutoffIn.epochMilliseconds;
         if (diffInMs > 0) {
           dayLateMins += Math.floor(diffInMs / 60000);
         }
       }
-
-
 
       if (dayLateMins > 0) {
         totalMins += dayLateMins;
@@ -198,6 +207,12 @@ export default function ReportModal({
 
     return { totalLateMinutes: totalMins, lateAttendanceRecords: lateRecords };
   }, [reportData]);
+
+  const displayedAttendanceRecords = useMemo(() => {
+    if (!reportData?.attendance) return [];
+    if (filter === "LATE") return lateAttendanceRecords;
+    return reportData.attendance;
+  }, [reportData, filter, lateAttendanceRecords]);
 
   if (!isOpen || !employee) return null;
 
@@ -246,11 +261,11 @@ export default function ReportModal({
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <h3 className="font-bold text-gray-900 flex items-center gap-2">
                       <Clock className="text-blue-500" size={18} />
-                      Late Attendance History
+                      Attendance History
                     </h3>
                     <div className="flex items-center gap-3">
                       <div className="text-xs font-medium bg-white border border-gray-100 rounded-lg px-3 py-1.5 shadow-sm text-gray-600">
-                        <span className="text-gray-400 mr-1">Days:</span>
+                        <span className="text-gray-400 mr-1">Late Days:</span>
                         <span className="text-gray-900">
                           {lateAttendanceRecords.length}
                         </span>
@@ -264,18 +279,45 @@ export default function ReportModal({
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => setIsAdding(!isAdding)}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm bg-blue-50 text-blue-700 px-4 py-2.5 rounded-xl hover:bg-blue-100 transition-colors font-medium border border-blue-100/50"
-                  >
-                    {isAdding ? (
-                      <>Cancel</>
-                    ) : (
-                      <>
-                        <CalendarPlus size={16} /> Add Missing Record
-                      </>
-                    )}
-                  </button>
+                  <div className="flex items-center justify-between gap-4 flex-wrap">
+                    <button
+                      onClick={() => setIsAdding(!isAdding)}
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm bg-blue-50 text-blue-700 px-4 py-2.5 rounded-xl hover:bg-blue-100 transition-colors font-medium border border-blue-100/50"
+                    >
+                      {isAdding ? (
+                        <>Cancel</>
+                      ) : (
+                        <>
+                          <CalendarPlus size={16} /> Add Missing Record
+                        </>
+                      )}
+                    </button>
+
+                    <div className="flex items-center gap-1.5 bg-white border border-gray-200 p-1 rounded-xl shadow-sm text-xs font-medium">
+                      <button
+                        type="button"
+                        onClick={() => setFilter("ALL")}
+                        className={`px-3 py-1.5 rounded-lg transition-colors ${
+                          filter === "ALL"
+                            ? "bg-blue-600 text-white shadow-xs"
+                            : "text-gray-600 hover:text-gray-900"
+                        }`}
+                      >
+                        All ({reportData?.attendance.length ?? 0})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFilter("LATE")}
+                        className={`px-3 py-1.5 rounded-lg transition-colors ${
+                          filter === "LATE"
+                            ? "bg-amber-600 text-white shadow-xs"
+                            : "text-gray-600 hover:text-gray-900"
+                        }`}
+                      >
+                        Late Only ({lateAttendanceRecords.length})
+                      </button>
+                    </div>
+                  </div>
 
                   {isAdding && (
                     <div className="bg-white border border-blue-100 p-5 rounded-2xl shadow-sm flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
@@ -332,13 +374,15 @@ export default function ReportModal({
                       </button>
                     </div>
                   )}
-                  {lateAttendanceRecords.length === 0 ? (
+                  {displayedAttendanceRecords.length === 0 ? (
                     <p className="text-sm text-gray-500 bg-white p-4 rounded-lg border">
-                      No late records found.
+                      {filter === "LATE"
+                        ? "No late records found."
+                        : "No attendance records found."}
                     </p>
                   ) : (
                     <div className="space-y-3">
-                      {lateAttendanceRecords
+                      {displayedAttendanceRecords
                         .sort((a, b) =>
                           b.date.toString().localeCompare(a.date.toString()),
                         )
@@ -370,7 +414,8 @@ export default function ReportModal({
                             const zdtIn = Temporal.Instant.from(
                               record.checkIn,
                             ).toZonedDateTimeISO("Asia/Kolkata");
-                            const cutoffIn = zdtIn.withPlainTime("09:50");
+                            const cutoffIn =
+                              zdtIn.withPlainTime(ATTENDANCE_LATE_TIME);
                             const diffInMs =
                               zdtIn.epochMilliseconds -
                               cutoffIn.epochMilliseconds;
@@ -378,8 +423,6 @@ export default function ReportModal({
                               dayLateMins += Math.floor(diffInMs / 60000);
                             }
                           }
-
-
 
                           isLate = dayLateMins > 0;
 
@@ -516,33 +559,53 @@ export default function ReportModal({
                         .map((record) => (
                           <div
                             key={record.id}
-                            className="bg-white p-4 rounded-xl border border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-sm hover:shadow-md transition-all"
+                            className="bg-white p-4 rounded-xl border border-gray-100 flex flex-col gap-3 shadow-sm hover:shadow-md transition-all"
                           >
-                            <p className="font-semibold text-gray-900 flex items-center gap-2">
-                              <Calendar size={14} className="text-gray-400" />
-                              {record.date.toString()}
-                            </p>
-                            <div className="flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                              {record.came ? (
-                                <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-green-200/50 shadow-sm flex-1 sm:flex-auto justify-center">
-                                  <CheckCircle2 size={12} /> Came
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 bg-red-50 text-red-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-red-200/50 shadow-sm flex-1 sm:flex-auto justify-center">
-                                  <XCircle size={12} /> Absent
-                                </span>
-                              )}
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 w-full">
+                              <p className="font-semibold text-gray-900 flex items-center gap-2">
+                                <Calendar size={14} className="text-gray-400" />
+                                {record.date.toString()}
+                              </p>
+                              <div className="flex flex-wrap gap-2 w-full sm:w-auto mt-1 sm:mt-0">
+                                {record.officeLeave && (
+                                  <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-indigo-200/50 shadow-sm flex-1 sm:flex-auto justify-center">
+                                    <Building2 size={12} /> Office Leave
+                                  </span>
+                                )}
 
-                              {record.cleaned ? (
-                                <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-blue-200/50 shadow-sm flex-1 sm:flex-auto justify-center">
-                                  <Sparkles size={12} /> Cleaned
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs font-semibold px-2.5 py-1 rounded-full border border-gray-200/50 shadow-sm flex-1 sm:flex-auto justify-center">
-                                  <XCircle size={12} /> Not Cleaned
-                                </span>
-                              )}
+                                {record.grannyLeave && (
+                                  <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-rose-200/50 shadow-sm flex-1 sm:flex-auto justify-center">
+                                    <UserMinus size={12} /> Granny Leave
+                                  </span>
+                                )}
+
+                                {record.came ? (
+                                  <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-green-200/50 shadow-sm flex-1 sm:flex-auto justify-center">
+                                    <CheckCircle2 size={12} /> Came
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 bg-red-50 text-red-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-red-200/50 shadow-sm flex-1 sm:flex-auto justify-center">
+                                    <XCircle size={12} /> Absent
+                                  </span>
+                                )}
+
+                                {record.cleaned ? (
+                                  <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-blue-200/50 shadow-sm flex-1 sm:flex-auto justify-center">
+                                    <Sparkles size={12} /> Cleaned
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs font-semibold px-2.5 py-1 rounded-full border border-gray-200/50 shadow-sm flex-1 sm:flex-auto justify-center">
+                                    <XCircle size={12} /> Not Cleaned
+                                  </span>
+                                )}
+                              </div>
                             </div>
+                            {record.comment && (
+                              <div className="text-xs text-gray-600 bg-gray-50 rounded-lg px-3 py-1.5 border border-gray-100 flex items-center gap-1.5">
+                                <MessageSquare size={13} className="text-gray-400 shrink-0" />
+                                <span>{record.comment}</span>
+                              </div>
+                            )}
                           </div>
                         ))}
                     </div>

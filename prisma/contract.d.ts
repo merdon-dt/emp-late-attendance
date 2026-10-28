@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'fc16fff67200302cb1f99344fb91aac23518f4ff784080e9e8ce9108661352bc'>;
+  StorageHashBase<'80767be9ea8498343a752fc7e2c13c7a7e65e571bd729566e080c852ea630d70'>;
 export type ExecutionHash =
   ExecutionHashBase<'47c6a86caa36d7c85081bafaeed2622033bd189dee20415b087d9add504e9533'>;
 export type ProfileHash =
@@ -262,10 +262,13 @@ export type FieldOutputTypes = {
     readonly CleaningRecord: {
       readonly came: CodecTypes['pg/bool@1']['output'];
       readonly cleaned: CodecTypes['pg/bool@1']['output'];
+      readonly comment: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly date: CodecTypes['pg/date-temporal@1']['output'];
       readonly employeeId: CodecTypes['pg/text@1']['output'];
+      readonly grannyLeave: CodecTypes['pg/bool@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
+      readonly officeLeave: CodecTypes['pg/bool@1']['output'];
       readonly onLeave: CodecTypes['pg/bool@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
@@ -295,10 +298,13 @@ export type FieldInputTypes = {
     readonly CleaningRecord: {
       readonly came: CodecTypes['pg/bool@1']['input'];
       readonly cleaned: CodecTypes['pg/bool@1']['input'];
+      readonly comment: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly date: CodecTypes['pg/date-temporal@1']['input'];
       readonly employeeId: CodecTypes['pg/text@1']['input'];
+      readonly grannyLeave: CodecTypes['pg/bool@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
+      readonly officeLeave: CodecTypes['pg/bool@1']['input'];
       readonly onLeave: CodecTypes['pg/bool@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
@@ -328,10 +334,13 @@ export type StorageColumnTypes = {
     readonly CleaningRecord: {
       readonly came: CodecTypes['pg/bool@1']['output'];
       readonly cleaned: CodecTypes['pg/bool@1']['output'];
+      readonly comment: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly date: CodecTypes['pg/date-temporal@1']['output'];
       readonly employeeId: CodecTypes['pg/text@1']['output'];
+      readonly grannyLeave: CodecTypes['pg/bool@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
+      readonly officeLeave: CodecTypes['pg/bool@1']['output'];
       readonly onLeave: CodecTypes['pg/bool@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
@@ -361,10 +370,13 @@ export type StorageColumnInputTypes = {
     readonly CleaningRecord: {
       readonly came: CodecTypes['pg/bool@1']['input'];
       readonly cleaned: CodecTypes['pg/bool@1']['input'];
+      readonly comment: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly date: CodecTypes['pg/date-temporal@1']['input'];
       readonly employeeId: CodecTypes['pg/text@1']['input'];
+      readonly grannyLeave: CodecTypes['pg/bool@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
+      readonly officeLeave: CodecTypes['pg/bool@1']['input'];
       readonly onLeave: CodecTypes['pg/bool@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
@@ -396,10 +408,13 @@ export namespace Models {
   export type public_CleaningRecord = {
     came: CodecTypes['pg/bool@1']['output'];
     cleaned: CodecTypes['pg/bool@1']['output'];
+    comment: CodecTypes['pg/text@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     date: CodecTypes['pg/date-temporal@1']['output'];
     employeeId: CodecTypes['pg/text@1']['output'];
+    grannyLeave: CodecTypes['pg/bool@1']['output'];
     id: CodecTypes['pg/text@1']['output'];
+    officeLeave: CodecTypes['pg/bool@1']['output'];
     onLeave: CodecTypes['pg/bool@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     employee: public_Employee;
@@ -536,6 +551,11 @@ type ContractBase = Omit<
                     readonly value: DefaultLiteralValue<'pg/bool@1', false>;
                   };
                 };
+                readonly comment: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
                 readonly createdAt: {
                   readonly nativeType: 'timestamptz';
                   readonly codecId: 'pg/timestamptz-temporal@1';
@@ -552,10 +572,28 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
                 };
+                readonly grannyLeave: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                };
                 readonly id: {
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
+                };
+                readonly officeLeave: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
                 };
                 readonly onLeave: {
                   readonly nativeType: 'bool';
@@ -775,6 +813,10 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
               };
+              readonly comment: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly createdAt: {
                 readonly nullable: false;
                 readonly type: {
@@ -790,9 +832,17 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly grannyLeave: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
               readonly id: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly officeLeave: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
               };
               readonly onLeave: {
                 readonly nullable: false;
@@ -826,10 +876,13 @@ type ContractBase = Omit<
               readonly fields: {
                 readonly came: { readonly column: 'came' };
                 readonly cleaned: { readonly column: 'cleaned' };
+                readonly comment: { readonly column: 'comment' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly date: { readonly column: 'date' };
                 readonly employeeId: { readonly column: 'employeeId' };
+                readonly grannyLeave: { readonly column: 'grannyLeave' };
                 readonly id: { readonly column: 'id' };
+                readonly officeLeave: { readonly column: 'officeLeave' };
                 readonly onLeave: { readonly column: 'onLeave' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
               };

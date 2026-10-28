@@ -43,6 +43,9 @@ model CleaningRecord {
   came       Boolean              @default(false)
   cleaned    Boolean              @default(false)
   onLeave    Boolean              @default(false)
+  officeLeave Boolean              @default(false)
+  grannyLeave Boolean              @default(false)
+  comment     String?
   createdAt  DateTime             @default(now())
   updatedAt  temporal.updatedAt()
 

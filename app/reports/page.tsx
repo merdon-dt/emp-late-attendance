@@ -27,6 +27,9 @@ export default async function ReportsPage() {
     came: c.came,
     cleaned: c.cleaned,
     onLeave: c.onLeave,
+    officeLeave: c.officeLeave ?? false,
+    grannyLeave: c.grannyLeave ?? false,
+    comment: c.comment ?? null,
   }));
 
   const serializedEmployees = employees.map(emp => ({

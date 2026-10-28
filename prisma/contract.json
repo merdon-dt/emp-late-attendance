@@ -150,6 +150,13 @@
                   "kind": "scalar"
                 }
               },
+              "comment": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "createdAt": {
                 "nullable": false,
                 "type": {
@@ -171,10 +178,24 @@
                   "kind": "scalar"
                 }
               },
+              "grannyLeave": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
               "id": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "officeLeave": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
                   "kind": "scalar"
                 }
               },
@@ -219,6 +240,9 @@
                 "cleaned": {
                   "column": "cleaned"
                 },
+                "comment": {
+                  "column": "comment"
+                },
                 "createdAt": {
                   "column": "createdAt"
                 },
@@ -228,8 +252,14 @@
                 "employeeId": {
                   "column": "employeeId"
                 },
+                "grannyLeave": {
+                  "column": "grannyLeave"
+                },
                 "id": {
                   "column": "id"
+                },
+                "officeLeave": {
+                  "column": "officeLeave"
                 },
                 "onLeave": {
                   "column": "onLeave"
@@ -491,6 +521,11 @@
                   "nativeType": "bool",
                   "nullable": false
                 },
+                "comment": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "createdAt": {
                   "codecId": "pg/timestamptz-temporal@1",
                   "default": {
@@ -510,9 +545,27 @@
                   "nativeType": "text",
                   "nullable": false
                 },
+                "grannyLeave": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
                 "id": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
+                  "nullable": false
+                },
+                "officeLeave": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
                   "nullable": false
                 },
                 "onLeave": {
@@ -683,7 +736,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "fc16fff67200302cb1f99344fb91aac23518f4ff784080e9e8ce9108661352bc"
+    "storageHash": "80767be9ea8498343a752fc7e2c13c7a7e65e571bd729566e080c852ea630d70"
   },
   "execution": {
     "executionHash": "47c6a86caa36d7c85081bafaeed2622033bd189dee20415b087d9add504e9533",

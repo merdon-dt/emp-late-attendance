@@ -1,0 +1,254 @@
+[
+  {
+    "id": "column.public.CleaningRecord.comment",
+    "label": "Add column \"comment\" to \"CleaningRecord\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "comment",
+        "table": "CleaningRecord"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"comment\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "CleaningRecord",
+          "comment"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"comment\"",
+        "sql": "ALTER TABLE \"public\".\"CleaningRecord\" ADD COLUMN \"comment\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"comment\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "CleaningRecord",
+          "comment"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.CleaningRecord.grannyLeave",
+    "label": "Add column \"grannyLeave\" to \"CleaningRecord\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "grannyLeave",
+        "table": "CleaningRecord"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"grannyLeave\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "CleaningRecord",
+          "grannyLeave"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"grannyLeave\"",
+        "sql": "ALTER TABLE \"public\".\"CleaningRecord\" ADD COLUMN \"grannyLeave\" bool DEFAULT false NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"grannyLeave\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "CleaningRecord",
+          "grannyLeave"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.CleaningRecord.officeLeave",
+    "label": "Add column \"officeLeave\" to \"CleaningRecord\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "officeLeave",
+        "table": "CleaningRecord"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"officeLeave\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "CleaningRecord",
+          "officeLeave"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"officeLeave\"",
+        "sql": "ALTER TABLE \"public\".\"CleaningRecord\" ADD COLUMN \"officeLeave\" bool DEFAULT false NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"officeLeave\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "CleaningRecord",
+          "officeLeave"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.CleaningRecord.onLeave",
+    "label": "Add column \"onLeave\" to \"CleaningRecord\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "onLeave",
+        "table": "CleaningRecord"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"onLeave\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "CleaningRecord",
+          "onLeave"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"onLeave\"",
+        "sql": "ALTER TABLE \"public\".\"CleaningRecord\" ADD COLUMN \"onLeave\" bool DEFAULT false NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"onLeave\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "CleaningRecord",
+          "onLeave"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Employee.empId",
+    "label": "Add column \"empId\" to \"Employee\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "empId",
+        "table": "Employee"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"empId\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Employee",
+          "empId"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"empId\"",
+        "sql": "ALTER TABLE \"public\".\"Employee\" ADD COLUMN \"empId\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"empId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Employee",
+          "empId"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Employee.Employee_empId_key",
+    "label": "Add unique constraint on \"Employee\" (empId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Employee_empId_key",
+        "table": "Employee"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Employee_empId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Employee_empId_key",
+          "public",
+          "\"public\".\"Employee\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Employee_empId_key\"",
+        "sql": "ALTER TABLE \"public\".\"Employee\" ADD CONSTRAINT \"Employee_empId_key\" UNIQUE (\"empId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Employee_empId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Employee_empId_key",
+          "public",
+          "\"public\".\"Employee\""
+        ]
+      }
+    ]
+  }
+]
