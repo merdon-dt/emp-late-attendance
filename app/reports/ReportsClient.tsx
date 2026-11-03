@@ -147,6 +147,55 @@ export default function ReportsClient({
                 <th className="px-4 py-3 font-semibold min-w-[140px] sticky left-0 bg-gray-50/80 border-r border-gray-200 z-10 shadow-[1px_0_0_0_#e5e7eb]">
                   Name
                 </th>
+                {activeTab === "EMPLOYEE" ? (
+                  <>
+                    <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-amber-700 min-w-[70px]">
+                      Late Days
+                    </th>
+                    <th
+                      className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-blue-700 min-w-[75px]"
+                      title="Total Days Present"
+                    >
+                      No. of Days
+                    </th>
+                    <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-200 text-orange-700 min-w-[85px]">
+                      Total Late Mins
+                    </th>
+                  </>
+                ) : (
+                  <>
+                    <th
+                      className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-green-700 min-w-[45px]"
+                      title="Days Present"
+                    >
+                      P
+                    </th>
+                    <th
+                      className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-blue-700 min-w-[45px]"
+                      title="Days Cleaned"
+                    >
+                      C
+                    </th>
+                    <th
+                      className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-indigo-700 min-w-[45px]"
+                      title="Office Leaves"
+                    >
+                      OL
+                    </th>
+                    <th
+                      className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-rose-700 min-w-[45px]"
+                      title="Granny Leaves"
+                    >
+                      GL
+                    </th>
+                    <th
+                      className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-200 text-red-700 min-w-[45px]"
+                      title="Absent"
+                    >
+                      A
+                    </th>
+                  </>
+                )}
                 {daysArray.map((day) => (
                   <th
                     key={day}
@@ -155,35 +204,6 @@ export default function ReportsClient({
                     {day}
                   </th>
                 ))}
-
-                {activeTab === "EMPLOYEE" ? (
-                  <>
-                    <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-l border-gray-200 z-10 text-amber-700 min-w-[70px]">
-                      Late Days
-                    </th>
-                    <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-l border-gray-200 z-10 text-orange-700 min-w-[80px]">
-                      Total Late Mins
-                    </th>
-                  </>
-                ) : (
-                  <>
-                    <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-l border-gray-200 z-10 text-green-700 min-w-[45px]" title="Days Present">
-                      P
-                    </th>
-                    <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-l border-gray-100 z-10 text-blue-700 min-w-[45px]" title="Days Cleaned">
-                      C
-                    </th>
-                    <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-l border-gray-100 z-10 text-indigo-700 min-w-[45px]" title="Office Leaves">
-                      OL
-                    </th>
-                    <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-l border-gray-100 z-10 text-rose-700 min-w-[45px]" title="Granny Leaves">
-                      GL
-                    </th>
-                    <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-l border-gray-100 z-10 text-red-700 min-w-[45px]" title="Absent">
-                      A
-                    </th>
-                  </>
-                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -191,7 +211,7 @@ export default function ReportsClient({
                 activeEmployees.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={daysInMonth + 3}
+                      colSpan={daysInMonth + 4}
                       className="p-8 text-center text-gray-500"
                     >
                       No employees found.
@@ -199,8 +219,57 @@ export default function ReportsClient({
                   </tr>
                 ) : (
                   activeEmployees.map((emp) => {
-                    let totalLateMins = 0;
+                    let totalDaysCount = 0;
                     let lateDaysCount = 0;
+                    let totalLateMins = 0;
+
+                    const dayCells = daysArray.map((day) => {
+                      const dateStr = `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+                      const record = attendance.find(
+                        (a) =>
+                          a.employeeId === emp.id && a.date === dateStr,
+                      );
+
+                      let display = "-";
+                      let cellClass = "text-gray-300";
+
+                      if (record?.checkIn) {
+                        totalDaysCount += 1;
+                        try {
+                          const zdtIn = Temporal.Instant.from(
+                            record.checkIn,
+                          ).toZonedDateTimeISO("Asia/Kolkata");
+                          const cutoff =
+                            zdtIn.withPlainTime(ATTENDANCE_LATE_TIME);
+                          const diffMs =
+                            zdtIn.epochMilliseconds -
+                            cutoff.epochMilliseconds;
+
+                          if (diffMs > 0) {
+                            const lateMins = Math.floor(diffMs / 60000);
+                            display = `${lateMins}m`;
+                            cellClass =
+                              "bg-orange-50 text-orange-700 font-bold";
+                            totalLateMins += lateMins;
+                            lateDaysCount += 1;
+                          } else {
+                            display = "✓";
+                            cellClass = "text-green-500 font-bold";
+                          }
+                        } catch {
+                          // ignore invalid date strings
+                        }
+                      }
+
+                      return (
+                        <td
+                          key={day}
+                          className={`px-1 py-2 text-center border-r border-gray-100 ${cellClass}`}
+                        >
+                          {display}
+                        </td>
+                      );
+                    });
 
                     return (
                       <tr
@@ -210,58 +279,16 @@ export default function ReportsClient({
                         <td className="px-4 py-2 font-medium text-gray-900 sticky left-0 bg-white border-r border-gray-200 shadow-[1px_0_0_0_#e5e7eb]">
                           {emp.name}
                         </td>
-                        {daysArray.map((day) => {
-                          const dateStr = `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
-                          const record = attendance.find(
-                            (a) =>
-                              a.employeeId === emp.id && a.date === dateStr,
-                          );
-
-                          let display = "-";
-                          let cellClass = "text-gray-300";
-
-                          if (record?.checkIn) {
-                            try {
-                              const zdtIn = Temporal.Instant.from(
-                                record.checkIn,
-                              ).toZonedDateTimeISO("Asia/Kolkata");
-                              const cutoff =
-                                zdtIn.withPlainTime(ATTENDANCE_LATE_TIME);
-                              const diffMs =
-                                zdtIn.epochMilliseconds -
-                                cutoff.epochMilliseconds;
-
-                              if (diffMs > 0) {
-                                const lateMins = Math.floor(diffMs / 60000);
-                                display = `${lateMins}m`;
-                                cellClass =
-                                  "bg-orange-50 text-orange-700 font-bold";
-                                totalLateMins += lateMins;
-                                lateDaysCount += 1;
-                              } else {
-                                display = "✓";
-                                cellClass = "text-green-500 font-bold";
-                              }
-                            } catch {
-                              // ignore invalid date strings
-                            }
-                          }
-
-                          return (
-                            <td
-                              key={day}
-                              className={`px-1 py-2 text-center border-r border-gray-100 ${cellClass}`}
-                            >
-                              {display}
-                            </td>
-                          );
-                        })}
-                        <td className="px-3 py-2 text-center font-bold text-amber-700 bg-amber-50/30 border-l border-gray-200">
+                        <td className="px-3 py-2 text-center font-bold text-amber-700 bg-amber-50/30 border-r border-gray-100">
                           {lateDaysCount}
                         </td>
-                        <td className="px-3 py-2 text-center font-bold text-orange-700 bg-orange-50/30 border-l border-gray-200">
+                        <td className="px-3 py-2 text-center font-bold text-blue-700 bg-blue-50/30 border-r border-gray-100">
+                          {totalDaysCount}
+                        </td>
+                        <td className="px-3 py-2 text-center font-bold text-orange-700 bg-orange-50/30 border-r border-gray-200">
                           {totalLateMins}m
                         </td>
+                        {dayCells}
                       </tr>
                     );
                   })
@@ -283,6 +310,72 @@ export default function ReportsClient({
                   let totalGL = 0;
                   let totalA = 0;
 
+                  const dayCells = daysArray.map((day) => {
+                    const dateStr = `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+                    const record = cleaning.find(
+                      (a) => a.employeeId === emp.id && a.date === dateStr,
+                    );
+
+                    let status = "";
+                    let cellClass = "";
+                    let tooltip = "";
+
+                    if (record) {
+                      if (record.officeLeave) {
+                        status = "OL";
+                        cellClass =
+                          "bg-indigo-50 text-indigo-700 font-bold";
+                        tooltip =
+                          "Office Leave" +
+                          (record.comment ? `: ${record.comment}` : "");
+                        totalOL++;
+                      } else if (record.grannyLeave) {
+                        status = "GL";
+                        cellClass = "bg-rose-50 text-rose-700 font-bold";
+                        tooltip =
+                          "Granny Leave" +
+                          (record.comment ? `: ${record.comment}` : "");
+                        totalGL++;
+                      } else if (record.came) {
+                        status = record.cleaned ? "C" : "P";
+                        cellClass = record.cleaned
+                          ? "bg-blue-50 text-blue-700 font-bold"
+                          : "bg-green-50 text-green-700 font-bold";
+                        tooltip = record.cleaned
+                          ? "Came & Cleaned"
+                          : "Came (Not Cleaned)";
+                        if (record.comment)
+                          tooltip += `: ${record.comment}`;
+                        totalP++;
+                        if (record.cleaned) totalC++;
+                      } else {
+                        status = "A";
+                        cellClass = "bg-red-50 text-red-700 font-bold";
+                        tooltip =
+                          "Absent" +
+                          (record.comment ? `: ${record.comment}` : "");
+                        totalA++;
+                      }
+                    } else {
+                      if (getIsPastOrToday(day)) {
+                        status = "A";
+                        cellClass = "bg-red-50 text-red-700 font-bold";
+                        tooltip = "Absent (No Record)";
+                        totalA++;
+                      }
+                    }
+
+                    return (
+                      <td
+                        key={day}
+                        className={`px-1 py-2 text-center border-r border-gray-100 ${cellClass}`}
+                        title={tooltip}
+                      >
+                        {status}
+                      </td>
+                    );
+                  });
+
                   return (
                     <tr
                       key={emp.id}
@@ -291,76 +384,22 @@ export default function ReportsClient({
                       <td className="px-4 py-2 font-medium text-gray-900 sticky left-0 bg-white border-r border-gray-200 shadow-[1px_0_0_0_#e5e7eb]">
                         {emp.name}
                       </td>
-                      {daysArray.map((day) => {
-                        const dateStr = `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
-                        const record = cleaning.find(
-                          (a) => a.employeeId === emp.id && a.date === dateStr,
-                        );
-
-                        let status = "";
-                        let cellClass = "";
-                        let tooltip = "";
-
-                        if (record) {
-                          if (record.officeLeave) {
-                            status = "OL";
-                            cellClass = "bg-indigo-50 text-indigo-700 font-bold";
-                            tooltip = "Office Leave" + (record.comment ? `: ${record.comment}` : "");
-                            totalOL++;
-                          } else if (record.grannyLeave) {
-                            status = "GL";
-                            cellClass = "bg-rose-50 text-rose-700 font-bold";
-                            tooltip = "Granny Leave" + (record.comment ? `: ${record.comment}` : "");
-                            totalGL++;
-                          } else if (record.came) {
-                            status = record.cleaned ? "C" : "P";
-                            cellClass = record.cleaned
-                              ? "bg-blue-50 text-blue-700 font-bold"
-                              : "bg-green-50 text-green-700 font-bold";
-                            tooltip = record.cleaned ? "Came & Cleaned" : "Came (Not Cleaned)";
-                            if (record.comment) tooltip += `: ${record.comment}`;
-                            totalP++;
-                            if (record.cleaned) totalC++;
-                          } else {
-                            status = "A";
-                            cellClass = "bg-red-50 text-red-700 font-bold";
-                            tooltip = "Absent" + (record.comment ? `: ${record.comment}` : "");
-                            totalA++;
-                          }
-                        } else {
-                          if (getIsPastOrToday(day)) {
-                            status = "A";
-                            cellClass = "bg-red-50 text-red-700 font-bold";
-                            tooltip = "Absent (No Record)";
-                            totalA++;
-                          }
-                        }
-
-                        return (
-                          <td
-                            key={day}
-                            className={`px-1 py-2 text-center border-r border-gray-100 ${cellClass}`}
-                            title={tooltip}
-                          >
-                            {status}
-                          </td>
-                        );
-                      })}
-                      <td className="px-2 py-2 text-center font-bold text-green-700 bg-green-50/30 border-l border-gray-200">
+                      <td className="px-2 py-2 text-center font-bold text-green-700 bg-green-50/30 border-r border-gray-100">
                         {totalP}
                       </td>
-                      <td className="px-2 py-2 text-center font-bold text-blue-700 bg-blue-50/30 border-l border-gray-100">
+                      <td className="px-2 py-2 text-center font-bold text-blue-700 bg-blue-50/30 border-r border-gray-100">
                         {totalC}
                       </td>
-                      <td className="px-2 py-2 text-center font-bold text-indigo-700 bg-indigo-50/30 border-l border-gray-100">
+                      <td className="px-2 py-2 text-center font-bold text-indigo-700 bg-indigo-50/30 border-r border-gray-100">
                         {totalOL}
                       </td>
-                      <td className="px-2 py-2 text-center font-bold text-rose-700 bg-rose-50/30 border-l border-gray-100">
+                      <td className="px-2 py-2 text-center font-bold text-rose-700 bg-rose-50/30 border-r border-gray-100">
                         {totalGL}
                       </td>
-                      <td className="px-2 py-2 text-center font-bold text-red-700 bg-red-50/30 border-l border-gray-100">
+                      <td className="px-2 py-2 text-center font-bold text-red-700 bg-red-50/30 border-r border-gray-200">
                         {totalA}
                       </td>
+                      {dayCells}
                     </tr>
                   );
                 })
