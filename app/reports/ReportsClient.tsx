@@ -152,12 +152,6 @@ export default function ReportsClient({
                     <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-amber-700 min-w-[70px]">
                       Late Days
                     </th>
-                    <th
-                      className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-blue-700 min-w-[75px]"
-                      title="Total Days Present"
-                    >
-                      No. of Days
-                    </th>
                     <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-200 text-orange-700 min-w-[85px]">
                       Total Late Mins
                     </th>
@@ -211,7 +205,7 @@ export default function ReportsClient({
                 activeEmployees.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={daysInMonth + 4}
+                      colSpan={daysInMonth + 3}
                       className="p-8 text-center text-gray-500"
                     >
                       No employees found.
@@ -219,7 +213,6 @@ export default function ReportsClient({
                   </tr>
                 ) : (
                   activeEmployees.map((emp) => {
-                    let totalDaysCount = 0;
                     let lateDaysCount = 0;
                     let totalLateMins = 0;
 
@@ -234,7 +227,6 @@ export default function ReportsClient({
                       let cellClass = "text-gray-300";
 
                       if (record?.checkIn) {
-                        totalDaysCount += 1;
                         try {
                           const zdtIn = Temporal.Instant.from(
                             record.checkIn,
@@ -281,9 +273,6 @@ export default function ReportsClient({
                         </td>
                         <td className="px-3 py-2 text-center font-bold text-amber-700 bg-amber-50/30 border-r border-gray-100">
                           {lateDaysCount}
-                        </td>
-                        <td className="px-3 py-2 text-center font-bold text-blue-700 bg-blue-50/30 border-r border-gray-100">
-                          {totalDaysCount}
                         </td>
                         <td className="px-3 py-2 text-center font-bold text-orange-700 bg-orange-50/30 border-r border-gray-200">
                           {totalLateMins}m
