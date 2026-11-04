@@ -88,17 +88,22 @@ export default function ReportsClient({
   console.log({ activeEmployees, attendance });
 
   return (
-    <div className="p-4 sm:p-8 space-y-6 max-w-full overflow-hidden">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="p-4 sm:p-8 space-y-6 max-w-full overflow-hidden print:p-0 print:m-0 print:space-y-2 print:overflow-visible print:max-w-none">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:gap-1">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">
-            Overall Report
-          </h1>
-          <p className="mt-1 text-sm sm:text-base text-gray-500">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 print:text-lg">
+              Overall Report
+            </h1>
+            <span className="hidden print:inline-block text-xs font-semibold text-gray-700 bg-gray-100 px-2 py-0.5 rounded border border-gray-300">
+              {Temporal.PlainYearMonth.from({ year, month }).toLocaleString("en-US", { month: "long", year: "numeric" })} &bull; {activeTab === "EMPLOYEE" ? "Regular Staff" : "Cleaning Staff"}
+            </span>
+          </div>
+          <p className="mt-1 text-sm sm:text-base text-gray-500 print:hidden">
             Excel-style monthly attendance grid.
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 print:hidden">
           <input
             type="month"
             value={selectedMonth}
@@ -107,14 +112,14 @@ export default function ReportsClient({
           />
           <button
             onClick={() => window.print()}
-            className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 shadow-sm transition-all"
+            className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 shadow-sm transition-all cursor-pointer"
           >
             <Download size={16} /> Print / PDF
           </button>
         </div>
       </div>
 
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 print:hidden">
         <nav className="-mb-px flex gap-6">
           <button
             onClick={() => setActiveTab("EMPLOYEE")}
@@ -139,51 +144,51 @@ export default function ReportsClient({
         </nav>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden print:border-none print:shadow-none print:rounded-none print:overflow-visible">
         <div className="overflow-x-auto print:overflow-visible">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead className="bg-gray-50/80 text-gray-600 border-b border-gray-200">
+          <table className="w-full text-left text-xs border-collapse print:text-[8px] print:w-full print:border print:border-gray-300">
+            <thead className="bg-gray-50/80 text-gray-600 border-b border-gray-200 print:bg-gray-100 print:border-gray-300">
               <tr>
-                <th className="px-4 py-3 font-semibold min-w-[140px] sticky left-0 bg-gray-50/80 border-r border-gray-200 z-10 shadow-[1px_0_0_0_#e5e7eb]">
+                <th className="px-4 py-3 font-semibold min-w-[140px] sticky left-0 bg-gray-50/80 border-r border-gray-200 z-10 shadow-[1px_0_0_0_#e5e7eb] print:static print:shadow-none print:bg-gray-100 print:border print:border-gray-300 print:min-w-0 print:w-28 print:px-1 print:py-1">
                   Name
                 </th>
                 {activeTab === "EMPLOYEE" ? (
                   <>
-                    <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-amber-700 min-w-[70px]">
+                    <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-amber-700 min-w-[70px] print:static print:border print:border-gray-300 print:min-w-0 print:w-9 print:px-0.5 print:py-1 print:text-[7.5px] leading-tight">
                       Late Days
                     </th>
-                    <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-200 text-orange-700 min-w-[85px]">
+                    <th className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-200 text-orange-700 min-w-[85px] print:static print:border print:border-gray-300 print:min-w-0 print:w-11 print:px-0.5 print:py-1 print:text-[7.5px] leading-tight">
                       Total Late Mins
                     </th>
                   </>
                 ) : (
                   <>
                     <th
-                      className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-green-700 min-w-[45px]"
+                      className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-green-700 min-w-[45px] print:static print:border print:border-gray-300 print:min-w-0 print:w-5 print:px-0.5 print:py-1 print:text-[8px]"
                       title="Days Present"
                     >
                       P
                     </th>
                     <th
-                      className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-blue-700 min-w-[45px]"
+                      className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-blue-700 min-w-[45px] print:static print:border print:border-gray-300 print:min-w-0 print:w-5 print:px-0.5 print:py-1 print:text-[8px]"
                       title="Days Cleaned"
                     >
                       C
                     </th>
                     <th
-                      className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-indigo-700 min-w-[45px]"
+                      className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-indigo-700 min-w-[45px] print:static print:border print:border-gray-300 print:min-w-0 print:w-5 print:px-0.5 print:py-1 print:text-[8px]"
                       title="Office Leaves"
                     >
                       OL
                     </th>
                     <th
-                      className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-rose-700 min-w-[45px]"
+                      className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-100 text-rose-700 min-w-[45px] print:static print:border print:border-gray-300 print:min-w-0 print:w-5 print:px-0.5 print:py-1 print:text-[8px]"
                       title="Granny Leaves"
                     >
                       GL
                     </th>
                     <th
-                      className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-200 text-red-700 min-w-[45px]"
+                      className="px-3 py-3 font-semibold text-center bg-gray-50/80 border-r border-gray-200 text-red-700 min-w-[45px] print:static print:border print:border-gray-300 print:min-w-0 print:w-5 print:px-0.5 print:py-1 print:text-[8px]"
                       title="Absent"
                     >
                       A
@@ -193,14 +198,14 @@ export default function ReportsClient({
                 {daysArray.map((day) => (
                   <th
                     key={day}
-                    className="px-2 py-3 font-medium text-center min-w-[36px] border-r border-gray-100"
+                    className="px-2 py-3 font-medium text-center min-w-[36px] border-r border-gray-100 print:border print:border-gray-300 print:min-w-0 print:w-auto print:px-0.5 print:py-1 print:text-[8px]"
                   >
                     {day}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 print:divide-gray-300">
               {activeTab === "EMPLOYEE" ? (
                 activeEmployees.length === 0 ? (
                   <tr>
@@ -256,7 +261,7 @@ export default function ReportsClient({
                       return (
                         <td
                           key={day}
-                          className={`px-1 py-2 text-center border-r border-gray-100 ${cellClass}`}
+                          className={`px-1 py-2 text-center border-r border-gray-100 print:border print:border-gray-300 print:px-0.5 print:py-0.5 print:text-[7.5px] ${cellClass}`}
                         >
                           {display}
                         </td>
@@ -268,13 +273,13 @@ export default function ReportsClient({
                         key={emp.id}
                         className="hover:bg-gray-50/50 transition-colors"
                       >
-                        <td className="px-4 py-2 font-medium text-gray-900 sticky left-0 bg-white border-r border-gray-200 shadow-[1px_0_0_0_#e5e7eb]">
+                        <td className="px-4 py-2 font-medium text-gray-900 sticky left-0 bg-white border-r border-gray-200 shadow-[1px_0_0_0_#e5e7eb] print:static print:shadow-none print:border print:border-gray-300 print:px-1.5 print:py-0.5 whitespace-nowrap print:text-[8.5px]">
                           {emp.name}
                         </td>
-                        <td className="px-3 py-2 text-center font-bold text-amber-700 bg-amber-50/30 border-r border-gray-100">
+                        <td className="px-3 py-2 text-center font-bold text-amber-700 bg-amber-50/30 border-r border-gray-100 print:border print:border-gray-300 print:px-0.5 print:py-0.5 print:text-[8px]">
                           {lateDaysCount}
                         </td>
-                        <td className="px-3 py-2 text-center font-bold text-orange-700 bg-orange-50/30 border-r border-gray-200">
+                        <td className="px-3 py-2 text-center font-bold text-orange-700 bg-orange-50/30 border-r border-gray-200 print:border print:border-gray-300 print:px-0.5 print:py-0.5 print:text-[8px]">
                           {totalLateMins}m
                         </td>
                         {dayCells}
@@ -357,7 +362,7 @@ export default function ReportsClient({
                     return (
                       <td
                         key={day}
-                        className={`px-1 py-2 text-center border-r border-gray-100 ${cellClass}`}
+                        className={`px-1 py-2 text-center border-r border-gray-100 print:border print:border-gray-300 print:px-0.5 print:py-0.5 print:text-[7.5px] ${cellClass}`}
                         title={tooltip}
                       >
                         {status}
@@ -370,22 +375,22 @@ export default function ReportsClient({
                       key={emp.id}
                       className="hover:bg-gray-50/50 transition-colors"
                     >
-                      <td className="px-4 py-2 font-medium text-gray-900 sticky left-0 bg-white border-r border-gray-200 shadow-[1px_0_0_0_#e5e7eb]">
+                      <td className="px-4 py-2 font-medium text-gray-900 sticky left-0 bg-white border-r border-gray-200 shadow-[1px_0_0_0_#e5e7eb] print:static print:shadow-none print:border print:border-gray-300 print:px-1.5 print:py-0.5 whitespace-nowrap print:text-[8.5px]">
                         {emp.name}
                       </td>
-                      <td className="px-2 py-2 text-center font-bold text-green-700 bg-green-50/30 border-r border-gray-100">
+                      <td className="px-2 py-2 text-center font-bold text-green-700 bg-green-50/30 border-r border-gray-100 print:border print:border-gray-300 print:px-0.5 print:py-0.5 print:text-[8px]">
                         {totalP}
                       </td>
-                      <td className="px-2 py-2 text-center font-bold text-blue-700 bg-blue-50/30 border-r border-gray-100">
+                      <td className="px-2 py-2 text-center font-bold text-blue-700 bg-blue-50/30 border-r border-gray-100 print:border print:border-gray-300 print:px-0.5 print:py-0.5 print:text-[8px]">
                         {totalC}
                       </td>
-                      <td className="px-2 py-2 text-center font-bold text-indigo-700 bg-indigo-50/30 border-r border-gray-100">
+                      <td className="px-2 py-2 text-center font-bold text-indigo-700 bg-indigo-50/30 border-r border-gray-100 print:border print:border-gray-300 print:px-0.5 print:py-0.5 print:text-[8px]">
                         {totalOL}
                       </td>
-                      <td className="px-2 py-2 text-center font-bold text-rose-700 bg-rose-50/30 border-r border-gray-100">
+                      <td className="px-2 py-2 text-center font-bold text-rose-700 bg-rose-50/30 border-r border-gray-100 print:border print:border-gray-300 print:px-0.5 print:py-0.5 print:text-[8px]">
                         {totalGL}
                       </td>
-                      <td className="px-2 py-2 text-center font-bold text-red-700 bg-red-50/30 border-r border-gray-200">
+                      <td className="px-2 py-2 text-center font-bold text-red-700 bg-red-50/30 border-r border-gray-200 print:border print:border-gray-300 print:px-0.5 print:py-0.5 print:text-[8px]">
                         {totalA}
                       </td>
                       {dayCells}
@@ -398,7 +403,7 @@ export default function ReportsClient({
         </div>
       </div>
 
-      <div className="text-xs text-gray-500 flex gap-4 p-2 bg-gray-50 rounded-lg mt-4 flex-wrap">
+      <div className="text-xs text-gray-500 flex gap-4 p-2 bg-gray-50 rounded-lg mt-4 flex-wrap print:mt-1.5 print:text-[7.5px] print:p-1 print:gap-3 print:bg-transparent print:border print:border-gray-200">
         <span className="font-semibold text-gray-700">Legend:</span>
         {activeTab === "EMPLOYEE" ? (
           <>

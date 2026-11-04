@@ -26,18 +26,18 @@ export default function Sidebar({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-gray-50/50">
+    <div className="flex min-h-screen bg-gray-50/50 print:bg-white print:block print:min-h-0">
       {/* Mobile sidebar backdrop */}
       {mobileMenuOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-gray-900/80 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-gray-900/80 backdrop-blur-sm lg:hidden print:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <div className={`
-        fixed inset-y-0 left-0 z-50 w-72 transform bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:static lg:translate-x-0
+        fixed inset-y-0 left-0 z-50 w-72 transform bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 print:hidden
         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex h-full flex-col">
@@ -127,9 +127,9 @@ export default function Sidebar({
       </div>
 
       {/* Main Content Area */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden print:block print:overflow-visible">
         {/* Mobile Top Bar */}
-        <div className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:px-6 lg:hidden">
+        <div className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:px-6 lg:hidden print:hidden">
           <button
             type="button"
             className="-m-2.5 p-2.5 text-gray-700"
@@ -144,7 +144,7 @@ export default function Sidebar({
         </div>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto print:block print:overflow-visible">
           {children}
         </main>
       </div>

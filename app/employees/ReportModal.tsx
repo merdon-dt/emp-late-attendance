@@ -60,6 +60,10 @@ export default function ReportModal({
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<"ALL" | "LATE">("ALL");
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => {
+    const today = Temporal.Now.plainDateISO();
+    return `${today.year}-${today.month.toString().padStart(2, "0")}`;
+  });
   const [editingRecordId, setEditingRecordId] = useState<string | null>(null);
   const [editCheckIn, setEditCheckIn] = useState<string>("");
   const [editCheckOut, setEditCheckOut] = useState<string>("");
@@ -70,6 +74,16 @@ export default function ReportModal({
   const [addCheckIn, setAddCheckIn] = useState(ATTENDANCE_LATE_TIME);
   const [addCheckOut, setAddCheckOut] = useState("18:50");
 
+  const handleOpenAdd = () => {
+    if (!isAdding) {
+      const today = Temporal.Now.plainDateISO().toString();
+      setAddDate(
+        today.startsWith(selectedMonth) ? today : `${selectedMonth}-01`,
+      );
+    }
+    setIsAdding(!isAdding);
+  };
+
   const handleAddPast = async () => {
     if (!addDate) return;
     setIsSaving(true);
@@ -77,6 +91,9 @@ export default function ReportModal({
       await addPastAttendance(employee!.id, addDate, addCheckIn, addCheckOut);
       const data = await getEmployeeReport(employee!.id);
       setReportData(data);
+      if (addDate) {
+        setSelectedMonth(addDate.substring(0, 7));
+      }
       setIsAdding(false);
       setAddDate("");
     } catch (err: unknown) {
@@ -154,6 +171,13 @@ export default function ReportModal({
   useEffect(() => {
     let ignore = false;
     if (isOpen && employee) {
+      const today = Temporal.Now.plainDateISO();
+      setSelectedMonth(
+        `${today.year}-${today.month.toString().padStart(2, "0")}`,
+      );
+      setFilter("ALL");
+      setIsAdding(false);
+      setEditingRecordId(null);
       queueMicrotask(() => setLoading(true));
       getEmployeeReport(employee.id)
         .then((data) => {
@@ -179,14 +203,25 @@ export default function ReportModal({
     };
   }, [isOpen, employee]);
 
+  const monthAttendance = useMemo(() => {
+    if (!reportData?.attendance) return [];
+    return reportData.attendance.filter((r) =>
+      r.date.toString().startsWith(selectedMonth),
+    );
+  }, [reportData?.attendance, selectedMonth]);
+
+  const monthCleaning = useMemo(() => {
+    if (!reportData?.cleaning) return [];
+    return reportData.cleaning.filter((r) =>
+      r.date.toString().startsWith(selectedMonth),
+    );
+  }, [reportData?.cleaning, selectedMonth]);
+
   const { totalLateMinutes, lateAttendanceRecords } = useMemo(() => {
-    if (!reportData?.attendance)
-      return { totalLateMinutes: 0, lateAttendanceRecords: [] };
-
     let totalMins = 0;
-    const lateRecords: typeof reportData.attendance = [];
+    const lateRecords: AttendanceItem[] = [];
 
-    reportData.attendance.forEach((record) => {
+    monthAttendance.forEach((record) => {
       let dayLateMins = 0;
       if (record.checkIn) {
         const zdtIn = Temporal.Instant.from(record.checkIn).toZonedDateTimeISO(
@@ -206,13 +241,12 @@ export default function ReportModal({
     });
 
     return { totalLateMinutes: totalMins, lateAttendanceRecords: lateRecords };
-  }, [reportData]);
+  }, [monthAttendance]);
 
   const displayedAttendanceRecords = useMemo(() => {
-    if (!reportData?.attendance) return [];
     if (filter === "LATE") return lateAttendanceRecords;
-    return reportData.attendance;
-  }, [reportData, filter, lateAttendanceRecords]);
+    return monthAttendance;
+  }, [monthAttendance, filter, lateAttendanceRecords]);
 
   if (!isOpen || !employee) return null;
 
@@ -243,12 +277,21 @@ export default function ReportModal({
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            <input
+              type="month"
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              className="text-xs font-semibold bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 shadow-xs text-gray-700 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              title="Filter by Month"
+            />
+            <button
+              onClick={onClose}
+              className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-gray-50/50">
@@ -266,13 +309,13 @@ export default function ReportModal({
                     <div className="flex items-center gap-3">
                       <div className="text-xs font-medium bg-white border border-gray-100 rounded-lg px-3 py-1.5 shadow-sm text-gray-600">
                         <span className="text-gray-400 mr-1">Late Days:</span>
-                        <span className="text-gray-900">
+                        <span className="text-gray-900 font-semibold">
                           {lateAttendanceRecords.length}
                         </span>
                       </div>
                       <div className="text-xs font-medium bg-white border border-gray-100 rounded-lg px-3 py-1.5 shadow-sm text-gray-600">
                         <span className="text-gray-400 mr-1">Late Mins:</span>
-                        <span className="text-amber-600">
+                        <span className="text-amber-600 font-semibold">
                           {totalLateMinutes}
                         </span>
                       </div>
@@ -281,7 +324,7 @@ export default function ReportModal({
 
                   <div className="flex items-center justify-between gap-4 flex-wrap">
                     <button
-                      onClick={() => setIsAdding(!isAdding)}
+                      onClick={handleOpenAdd}
                       className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm bg-blue-50 text-blue-700 px-4 py-2.5 rounded-xl hover:bg-blue-100 transition-colors font-medium border border-blue-100/50"
                     >
                       {isAdding ? (
@@ -303,7 +346,7 @@ export default function ReportModal({
                             : "text-gray-600 hover:text-gray-900"
                         }`}
                       >
-                        All ({reportData?.attendance.length ?? 0})
+                        All ({monthAttendance.length})
                       </button>
                       <button
                         type="button"
@@ -377,8 +420,8 @@ export default function ReportModal({
                   {displayedAttendanceRecords.length === 0 ? (
                     <p className="text-sm text-gray-500 bg-white p-4 rounded-lg border">
                       {filter === "LATE"
-                        ? "No late records found."
-                        : "No attendance records found."}
+                        ? "No late records found for this month."
+                        : "No attendance records found for this month."}
                     </p>
                   ) : (
                     <div className="space-y-3">
@@ -545,14 +588,14 @@ export default function ReportModal({
                     <Sparkles className="text-purple-500" size={18} />
                     Cleaning History
                   </h3>
-                  {reportData?.cleaning.length === 0 ? (
+                  {monthCleaning.length === 0 ? (
                     <div className="text-sm text-gray-500 bg-white p-8 rounded-xl border border-gray-100 text-center flex flex-col items-center justify-center gap-2">
                       <Calendar className="text-gray-300" size={32} />
-                      No records found.
+                      No records found for this month.
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {reportData?.cleaning
+                      {monthCleaning
                         .sort((a, b) =>
                           b.date.toString().localeCompare(a.date.toString()),
                         )
